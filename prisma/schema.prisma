@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum JenisPembayaran {
+  dana
+  cod
+  qris
+  ovo
+  gopay
+  linkaja
+  vitualAccountTransfer
+}
+
+enum Role{
+  admin
+  pelanggan
+}
+
+enum ekspedisi {
+  reguler
+  express
+  sameDay
+  instant
+}
+
+enum status {
+  pesananBerhasilDibuat
+  pesananDiterima
+  pesananDitolak
+  pesananDikirimKeEkspedisi
+  transitDiKotaTujuan
+  dikirimKeAlamatTujuan
+  diterima
+}
+
+model user {
+  id              Int       @id @default(autoincrement())
+  uuid            String    @default("")
+  nama            String    @db.Text
+  kontak          String    @default("")
+  alamat          String    @unique @default("")
+  username        String    @default("")
+  role            Role      @default(pelanggan)
+  email           String    @unique @default("")
+  password        String    @default("")
+  profile_picture String    @default("")
+  transaksi order[]
+}
+
+model barang {
+  idBarang        Int               @id @default(autoincrement())
+  uuid            String            @unique
+  namaBarang      String            @default("")
+  hargaBarang     Int               @default(0)
+  deskripsi       String            @db.Text
+  banyakBarang    Int               @default(0)
+  alamatBarang    String            @default("")
+  fotoBarang      String            @default("")
+  order_list      order_list[]
+  order           order[]
+}
+
+model order_list {
+  idDetailTransaksi Int             @id @default(autoincrement())
+  uuid              String          @default("")
+  idOrder           Int?
+  order             order?          @relation(fields: [idOrder], references: [id])
+  IdBarang          Int?             
+  barang            barang?         @relation(fields: [IdBarang], references: [idBarang])
+  jumlahBarang      Int             @default(0)
+  note              String          @default("") @db.Text  
+}
+
+model order {
+  id               Int             @id @default(autoincrement())
+  uuid             String          @default("")
+  TotalPembayaran  Int             @default(0)         
+  JenisPembayaran  JenisPembayaran @default(cod)
+  iduser           Int?             
+  user             user?           @relation(fields: [iduser],references: [id])
+  idBarang         Int?
+  barang           barang?         @relation(fields: [idBarang], references: [idBarang])
+  ekspedisi        ekspedisi       @default(reguler)
+  status           status          @default(pesananBerhasilDibuat)
+  createdAt        DateTime        @default(now()) 
+  order_list       order_list[]
+}

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `admin` ADD COLUMN `fotoAdmin` VARCHAR(191) NOT NULL DEFAULT '',
+    ADD COLUMN `uuid` VARCHAR(191) NOT NULL DEFAULT '';
